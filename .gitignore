@@ -1,0 +1,14 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.ipa
+.DS_Store
+# Capacitor Android wrapper: dependencies and build output are recreated by build-apk.sh
+android-app/node_modules/
+android-app/android/.gradle/
+android-app/android/build/
+android-app/android/app/build/
+android-app/android/capacitor-cordova-android-plugins/build/
+android-app/android/local.properties

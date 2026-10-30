@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wake Me There Screens</title>
+<style>
+:root{--bg:#F1F1F6;--ink:#17172B;--muted:#686884;--line:#E0E0EB;--accent:#5F57F4;--frame:#0B0B10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0D0D15;--ink:#ECECF6;--muted:#9A9AB4;--line:#2A2A3B;--accent:#827CFF;--frame:#2A2A36}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0D0D15;--ink:#ECECF6;--muted:#9A9AB4;--line:#2A2A3B;--accent:#827CFF;--frame:#2A2A36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;padding:32px 16px 48px}
+.wrap{max-width:1080px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h1{font-size:26px;letter-spacing:-.02em;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.chip{font-size:12px;font-weight:600;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:6px 11px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+figure{margin:0;display:flex;flex-direction:column;gap:12px}
+.phone{background:var(--frame);border-radius:34px;padding:7px;box-shadow:0 22px 40px -22px rgba(20,20,60,.45)}
+.phone img{display:block;width:100%;height:auto;border-radius:28px}
+figcaption b{display:block;font-size:15px;letter-spacing:-.01em}
+figcaption span{display:block;color:var(--muted);font-size:13.5px;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Screens from the iOS app</h1>
+      <p>Captured from the SwiftUI build running in the iOS 26 Simulator. These are real screens, not mockups.</p>
+    </div>
+    <span class="chip">SwiftUI · MapKit · Core Location</span>
+  </header>
+  <div class="grid">
+    <figure>
+      <div class="phone"><img src="shots/undo.jpg" alt="Stops tab with a map of saved stops and a toast reading Deleted Egmore Station, with an Undo button" width="600" height="1305" loading="lazy"></div>
+      <figcaption><b>Stops</b><span>Saved stops on a map, with your distance from each and its alarm radius. Swipe to edit or delete, and undo a delete for four seconds.</span></figcaption>
+    </figure>
+    <figure>
+      <div class="phone"><img src="shots/trips.jpg" alt="Trips tab listing three recent trips, two that woke you up and one ended early" width="600" height="1305" loading="lazy"></div>
+      <figcaption><b>Trips</b><span>Every finished trip, showing whether the alarm woke you or you ended it early. Swipe to delete a trip, or clear them all.</span></figcaption>
+    </figure>
+    <figure>
+      <div class="phone"><img src="shots/trip.jpg" alt="Trip screen with the alarm zone around Guindy Metro and 3.1 km to go" width="600" height="1305" loading="lazy"></div>
+      <figcaption><b>On the move</b><span>Live distance, progress and the alarm zone. Lock the phone and nap.</span></figcaption>
+    </figure>
+    <figure>
+      <div class="phone"><img src="shots/ring.jpg" alt="Full-screen alarm reading Wake up, with I'm awake and Snooze buttons" width="600" height="1305" loading="lazy"></div>
+      <figcaption><b>Wake up</b><span>Rings even on silent, with vibration and a time-sensitive notification. Snooze for one more minute.</span></figcaption>
+    </figure>
+  </div>
+</div>
+</body>
+</html>

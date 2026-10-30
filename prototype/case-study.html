@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wake Me There Case Study</title>
+<style>
+:root{--bg:#F1F1F6;--card:#FFFFFF;--ink:#17172B;--muted:#686884;--line:#E0E0EB;--accent:#5F57F4;--soft:#ECEBFE;--warn:#B25E0E;--warnSoft:#FBEFE2;--danger:#C8382E;--dangerSoft:#FBE4E1;--frame:#0B0B10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0D0D15;--card:#181824;--ink:#ECECF6;--muted:#9A9AB4;--line:#2A2A3B;--accent:#827CFF;--soft:#22213D;--warn:#F0A659;--warnSoft:#3A2A19;--danger:#F07A6C;--dangerSoft:#3D211E;--frame:#2A2A36}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0D0D15;--card:#181824;--ink:#ECECF6;--muted:#9A9AB4;--line:#2A2A3B;--accent:#827CFF;--soft:#22213D;--warn:#F0A659;--warnSoft:#3A2A19;--danger:#F07A6C;--dangerSoft:#3D211E;--frame:#2A2A36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;padding:40px 16px 64px}
+.wrap{max-width:1040px;margin:0 auto}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;letter-spacing:-.03em;margin:0 0 14px;text-wrap:balance}
+h2{font-size:clamp(22px,3vw,28px);letter-spacing:-.02em;line-height:1.2;margin:0 0 12px;text-wrap:balance}
+h3{font-size:17px;letter-spacing:-.01em;margin:0 0 6px}
+p{margin:0 0 14px;max-width:66ch}
+.lede{font-size:18px;color:var(--muted);max-width:60ch}
+.muted{color:var(--muted)}
+section{margin-top:64px}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;border-top:1px solid var(--line);padding-top:18px;margin-top:28px;list-style:none;padding-left:0}
+.facts li{font-size:14px;line-height:1.45}
+.facts b{display:block;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+@media (max-width:760px){.facts{grid-template-columns:1fr 1fr}}
+.hero-shots{display:grid;grid-template-columns:2.2fr 1fr;gap:20px;align-items:end;margin-top:36px}
+.desk{border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 48px -28px rgba(20,20,60,.4);background:var(--card)}
+.desk img{display:block;width:100%;height:auto}
+.phone{background:var(--frame);border-radius:34px;padding:7px;box-shadow:0 22px 40px -22px rgba(20,20,60,.45)}
+.phone img{display:block;width:100%;height:auto;border-radius:28px}
+@media (max-width:760px){.hero-shots{grid-template-columns:1fr}.hero-shots .phone{max-width:280px;margin:0 auto}}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:40px;align-items:start}
+.split.rev{grid-template-columns:minmax(0,300px) minmax(0,1fr)}
+.split.rev .phone{order:-1}
+@media (max-width:820px){.split,.split.rev{grid-template-columns:1fr}.split .phone,.split.rev .phone{max-width:300px;margin:0 auto;order:0}}
+.pains{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px}
+@media (max-width:820px){.pains{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card p{font-size:14.5px;margin:0;color:var(--muted)}
+.decision{border-left:3px solid var(--accent);padding:2px 0 2px 18px;margin:0 0 26px}
+.decision p{margin:0}
+.decision h3 span{color:var(--muted);font-weight:500}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;margin:0 6px 6px 0;background:var(--soft);color:var(--accent)}
+.tag.warn{background:var(--warnSoft);color:var(--warn)}
+.tag.danger{background:var(--dangerSoft);color:var(--danger)}
+.arch{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch;margin-top:18px}
+.arch .card{display:flex;flex-direction:column;gap:6px}
+.arch .card b{font-size:15px}
+.arch .card small{color:var(--muted);font-size:13px;line-height:1.45}
+.arrow{align-self:center;color:var(--muted);font-size:20px}
+@media (max-width:820px){.arch{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}}
+ul.plain{padding-left:20px;margin:0 0 14px}
+ul.plain li{margin-bottom:6px;max-width:64ch}
+.status{background:var(--warnSoft);border:1px solid transparent;border-radius:14px;padding:18px 20px}
+.status h3{color:var(--warn)}
+footer{margin-top:64px;border-top:1px solid var(--line);padding-top:18px;font-size:13px;color:var(--muted)}
+.hero-trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:36px;max-width:820px}
+@media (max-width:640px){.hero-trio{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.hero-trio .phone{border-radius:22px;padding:4px}.hero-trio .phone img{border-radius:18px}}
+ol.layers{margin:10px 0 0;padding-left:20px}
+ol.layers li{margin-bottom:6px;font-size:15px}
+figcaption.note{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Case study · Side project</div>
+  <h1>Wake Me There: an alarm set by distance, not by time</h1>
+  <p class="lede">A travel alarm for iPhone. Pick your stop, choose how close you want to be woken, then lock the phone and nap on the bus, metro or train. It rings as you approach, even on silent.</p>
+  <ul class="facts">
+    <li><b>Role</b>Product design and SwiftUI build</li>
+    <li><b>Platform</b>iPhone, iOS 26</li>
+    <li><b>Stack</b>SwiftUI, MapKit, Core Location, AVFoundation</li>
+    <li><b>Built with</b>AI-assisted coding (Claude Code)</li>
+  </ul>
+  <div class="hero-trio">
+    <div class="phone"><img src="shots/home.jpg" alt="Stops screen: a map of Chennai with saved stops, and a list of Guindy Metro, Chennai Central, Zoho Estancia and Egmore Station with distance and alarm radius" width="600" height="1304" loading="lazy"></div>
+    <div class="phone"><img src="shots/trip.jpg" alt="Live trip to Guindy Metro: the alarm zone drawn as a circle on the map and 3.1 km to go" width="600" height="1304" loading="lazy"></div>
+    <div class="phone"><img src="shots/ring.jpg" alt="The ringing screen: a red-orange Wake up screen, You're approaching Guindy Metro, with I'm awake and Snooze 1 min buttons" width="600" height="1304" loading="lazy"></div>
+  </div>
+</header>
+
+<section>
+  <div class="kicker">The problem</div>
+  <h2>A time alarm has to guess the traffic</h2>
+  <p>On a long commute it is tempting to sleep, and the only tool most people have is a clock alarm. A clock alarm has to guess when you will arrive, and Chennai traffic makes that guess wrong in both directions. Map apps know where you are, but they are built to navigate, not to wake someone up.</p>
+  <div class="pains">
+    <div class="card"><h3>⏰ Too early or too late</h3><p>Set it for 40 minutes and you wake up two stops early, or the bus was quick and you are already past your stop.</p></div>
+    <div class="card"><h3>🔕 The phone is on silent</h3><p>People silence their phone on public transport. A normal notification makes no sound at all.</p></div>
+    <div class="card"><h3>🔒 The phone is locked</h3><p>If the app has to be open to work, it does not work. iOS also suspends or closes apps that sit in the background.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">Design goals</div>
+  <h2>What the app had to get right</h2>
+  <ul class="plain">
+    <li><b>Ring every time.</b> An alarm that misses once is an alarm nobody trusts again.</li>
+    <li><b>Never ring early by mistake.</b> A false alarm wakes you for nothing and teaches you to ignore it.</li>
+    <li><b>Set up a trip in a few taps</b>, half-awake, standing on a moving bus.</li>
+    <li><b>Go easy on the battery</b> over a trip that can last an hour or more.</li>
+    <li><b>Ask for permissions when they make sense</b>, not all at once on first launch.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="kicker">Key decisions</div>
+  <h2>How the design answered those goals</h2>
+
+  <div class="split" style="margin-top:24px">
+    <div>
+      <div class="decision">
+        <h3>The setting is a distance</h3>
+        <p>Each stop has one setting: <b>Wake me up within</b> a distance, from 200 m to 10 km, with a slider and one-tap presets. The circle is drawn on the map as you drag, so the choice is something you can see. A short tip suggests 2 to 5 km on fast trains or highways, so there is time to get ready.</p>
+      </div>
+      <div class="decision">
+        <h3>Saved stops, one tap to start</h3>
+        <p>The home screen is the stops you use, each with its distance from you and its alarm radius. Starting a trip is one button. Swipe to edit or delete, and a deleted stop can be brought back from an <b>Undo</b> toast for four seconds instead of a confirmation dialog.</p>
+      </div>
+      <div class="decision">
+        <h3>The trip screen is for glancing</h3>
+        <p>While moving, the screen shows one large number, the distance left to the alarm zone, with a progress bar and an arrival time once you are moving faster than walking pace. Then it tells you that you can lock the phone.</p>
+      </div>
+    </div>
+    <div class="phone"><img src="shots/undo.jpg" alt="Stops list after a delete, with an Undo toast at the bottom of the screen" width="600" height="1304" loading="lazy"></div>
+  </div>
+
+  <div class="split rev" style="margin-top:36px">
+    <div class="phone"><img src="shots/ring.jpg" alt="The ringing screen with I'm awake and Snooze 1 min" width="600" height="1304" loading="lazy"></div>
+    <div>
+      <div class="decision">
+        <h3>Three ways to ring, so one is always there</h3>
+        <p>Reliability was designed as layers, each covering a case the other misses:</p>
+        <ol class="layers">
+          <li><b>Live location.</b> A background location session checks the distance on every GPS fix and rings inside the radius.</li>
+          <li><b>A geofence as backup.</b> If iOS closed the app, entering the region relaunches it, and the trip resumes from where it was saved.</li>
+          <li><b>A time-sensitive notification</b> with its own 25-second alarm sound, which iOS can let through Focus.</li>
+        </ol>
+      </div>
+      <div class="decision">
+        <h3>It ignores fixes it cannot trust</h3>
+        <p>A location more than a minute old, or one less precise than the alarm radius, does not count. That one rule is what stops a jumpy GPS reading in a metro tunnel from waking you two stations early.</p>
+      </div>
+      <div class="decision">
+        <h3>A wake-up you cannot sleep through</h3>
+        <p>The alarm plays through the speaker even on silent, loops, and vibrates every 1.4 seconds. The tone is generated in code as a two-note chirp with an overtone, so it carries over road and train noise. The app has no audio files. <b>I'm awake</b> ends the trip. <b>Snooze 1 min</b> rings again a minute later, for the moment you need one more stop to stand up.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="split" style="margin-top:36px">
+    <div>
+      <div class="decision">
+        <h3>Accuracy follows the distance</h3>
+        <p>Precise GPS drains the battery, and it is not needed 30 km away. The app asks for coarse location while you are more than 20 km out, medium between 20 and 5 km, and the best available inside 5 km, when it matters.</p>
+      </div>
+      <div class="decision">
+        <h3>"Always" permission, asked at the right moment</h3>
+        <p>On first launch the app asks only for location while in use. It asks for <b>Always</b> when you start your first trip, which is when the reason is obvious: so it can wake you with the phone locked.</p>
+      </div>
+      <div class="decision">
+        <h3>A record of every trip</h3>
+        <p>The Trips tab lists each finished trip and whether the alarm woke you or you ended it early. It is the simplest proof that the alarm works. History stays on the phone, keeps the last 50 trips, and can be cleared.</p>
+      </div>
+    </div>
+    <div class="phone"><img src="shots/trips.jpg" alt="Trips tab listing past trips, each marked as woken by the alarm or ended early" width="600" height="1304" loading="lazy"></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">How it is built</div>
+  <h2>A small native app, with nothing on a server</h2>
+  <p>About 1,500 lines of Swift. Everything runs on the phone: stops and history are saved on the device, places come from MapKit search, and there is no account and no backend.</p>
+  <div class="arch">
+    <div class="card"><b>🗺️ SwiftUI + MapKit</b><small>Stops, new stop, live trip and ringing screens. Place autocomplete and the alarm circle on the map.</small></div>
+    <div class="arrow">→</div>
+    <div class="card"><b>📍 Trip engine</b><small>Core Location updates, the geofence backup, accuracy tuning, and resuming a trip after the app is relaunched.</small></div>
+    <div class="arrow">→</div>
+    <div class="card"><b>🔔 Alarm</b><small>A looping tone that plays on silent, vibration, and a time-sensitive notification with a custom sound.</small></div>
+  </div>
+  <p class="muted" style="margin-top:16px">Debug builds can open straight into any state (a trip in progress, the alarm ringing, the undo toast) with a launch argument. That is how the screens on this page were captured, and it made design reviews repeatable without travelling anywhere.</p>
+</section>
+
+<section>
+  <div class="status">
+    <h3>Where it stands</h3>
+    <p style="margin-bottom:8px">Built and installed on my own iPhone. The screens on this page come from the SwiftUI build in the iOS 26 Simulator, with sample stops around Chennai.</p>
+    <p style="margin:0">Ideas I have not built yet: AlarmKit system alarms, a Live Activity showing the distance left on the Lock Screen, a snooze that re-arms at a smaller radius, and a choice of alarm tones.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">What I took from it</div>
+  <h2>For an alarm, being reliable is the design</h2>
+  <p>The screens were the easy part. Most of the design work was deciding what happens when things go wrong: the app is closed, the phone is silent, the GPS jumps in a tunnel. Each answer became a rule in the trip engine, and each rule is the reason someone can actually fall asleep.</p>
+</section>
+
+<footer>Wake Me There · designed and built by Gopinath Thandapani with AI-assisted coding. Sample stops throughout.</footer>
+</div>
+</body>
+</html>
