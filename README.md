@@ -2,6 +2,8 @@
 
 A location-based travel alarm for iOS. Pick your stop, set how close you want to be woken, then nap. The alarm rings as you approach, even with the phone locked or on silent.
 
+Architecture: see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Run it
 1. Open `WakeMeThere.xcodeproj` in Xcode.
 2. Install the iOS platform if you haven't yet: **Xcode → Settings → Components → iOS 26**.
