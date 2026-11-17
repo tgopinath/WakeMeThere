@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-m3-primary="#0077b6">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,6 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap">
 <link rel="stylesheet" href="kolam/tokens.css">
+<!-- Android app only: Material Design 3 from the shared Kolam M3 kit (m3/, copied from kolam-design-system/m3).
+     In a browser nothing changes; inside the Capacitor shell (or with ?app=android) <html> gets k-android. -->
+<script src="m3/kolam-m3.js"></script>
+<link rel="stylesheet" href="m3/kolam-m3.css">
 <style>
 [hidden]{display:none!important}
 img{max-width:100%}
@@ -120,6 +124,7 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 .del-link{background:none;border:0;color:var(--danger);font:700 15px/1.2 var(--font-sans);cursor:pointer;padding:4px}
 .snooze{width:100%;border:1.5px solid color-mix(in srgb, var(--on-accent) 55%, transparent);border-radius:var(--radius-pill);background:color-mix(in srgb, var(--on-accent) 12%, transparent);color:var(--on-accent);font:700 17px/1.2 var(--font-sans);padding:15px;cursor:pointer;margin-top:12px}
 .awake{margin-top:auto}
+.ring .snooze{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.12)}
 
 /* add */
 .sheet-nav{padding:58px 16px 8px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
@@ -133,18 +138,28 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 .results{flex:1;overflow:auto;background:var(--ios-card)}
 .results button{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 18px;border-bottom:.5px solid var(--ios-sep);font:400 15px/1.35 var(--font-sans);color:var(--ios-label);cursor:pointer}
 .results button span{display:block;color:var(--ios-2);font-size:13.5px}
-.add-map{flex:1;position:relative;min-height:0}
+.add-map{flex:none;height:230px;position:relative;margin:0 16px;border-radius:var(--radius-lg);overflow:hidden}
 .add-map svg{width:100%;height:100%;display:block;cursor:crosshair}
 .hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:var(--ios-mat);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:var(--radius-pill);padding:7px 13px;font-size:12.5px;font-weight:700;white-space:nowrap;box-shadow:var(--shadow-1)}
-.settings{background:var(--ios-card);padding:16px 18px 30px;display:flex;flex-direction:column;gap:12px}
-.settings input[type=text]{border:0;background:var(--ios-fill);border-radius:var(--radius-md);padding:11px 12px;font:700 16px var(--font-sans);color:var(--ios-label);outline:none;width:100%}
+/* grouped form, like the native inset-grouped Form */
+.settings{flex:1;overflow-y:auto;padding:4px 16px 30px;display:flex;flex-direction:column;gap:6px}
+.settings > *{flex-shrink:0}
+.grp-h{font-size:13px;color:var(--ios-2);padding:12px 16px 2px}
+.grp-f{font-size:12.5px;color:var(--ios-2);padding:2px 16px 8px;line-height:1.35}
+.grp{background:var(--ios-card);border-radius:var(--radius-lg);padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+.rad-row{display:flex;align-items:center;gap:8px}
+.rad-row small{font-size:12px;color:var(--ios-2);white-space:nowrap}
+.del-row{background:none;border:0;color:var(--danger);font:400 16px/1.2 var(--font-sans);cursor:pointer;padding:2px;min-height:28px;width:100%}
+#delWrap{padding:10px 16px}
+.settings input[type=text]{border:0;background:none;padding:2px 0;font:400 16px var(--font-sans);color:var(--ios-label);outline:none;width:100%}
 .settings input[type=text]:focus-visible{outline:var(--border-focus) solid var(--focus);outline-offset:2px}
 .rad-h{display:flex;justify-content:space-between;font-size:14px;color:var(--ios-2)}
 .rad-h b{color:var(--ios-label);font-weight:900;font-variant-numeric:tabular-nums}
 input[type=range]{width:100%;accent-color:var(--primary)}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:0;border-radius:var(--radius-pill);padding:6px 10px;font:700 12px/1.2 var(--font-sans);background:var(--ios-fill);color:var(--ios-label);cursor:pointer}
-.chip.on{background:var(--primary);color:var(--on-primary)}
+/* segmented control for the quick-pick distances */
+.chips{display:flex;gap:2px;padding:2px;background:var(--ios-fill);border-radius:var(--radius-md)}
+.chip{flex:1;border:0;border-radius:calc(var(--radius-md) - 2px);padding:7px 2px;min-height:32px;font:400 13px/1.2 var(--font-sans);background:none;color:var(--ios-label);cursor:pointer}
+.chip.on{background:var(--ios-card);font-weight:700;box-shadow:var(--shadow-1)}
 .tip{font-size:12px;color:var(--ios-2)}
 .ios-btn{border:0;border-radius:var(--radius-pill);background:var(--primary);color:var(--on-primary);font:700 17px/1.2 var(--font-sans);padding:14px;min-height:var(--size-control-md);cursor:pointer;width:100%;display:flex;gap:8px;justify-content:center;align-items:center}
 .ios-btn:disabled{background:var(--surface-sunken);color:var(--ink-muted);cursor:not-allowed}
@@ -155,7 +170,7 @@ input[type=range]{width:100%;accent-color:var(--primary)}
 .trip-map{position:absolute;inset:0}
 .trip-map svg{width:100%;height:100%;display:block}
 .panel{position:absolute;left:10px;right:10px;bottom:22px;background:var(--ios-mat);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-radius:var(--radius-xl);padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow-3)}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ios-2)}
+.eyebrow{font-size:13px;font-weight:700;color:var(--ios-2)}
 .dest-name{font:700 20px/1.25 var(--font-display);letter-spacing:-.01em}
 .armed{font-size:12px;font-weight:700;color:var(--primary-text);background:var(--primary-soft);border-radius:var(--radius-pill);padding:4px 9px;display:inline-flex;gap:5px;align-items:center}
 .big{font:900 42px/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
@@ -175,7 +190,8 @@ input[type=range]{width:100%;accent-color:var(--primary)}
 .confirm .cancel{background:var(--ios-card);border-radius:var(--radius-lg);color:var(--primary-text);font-weight:700}
 
 /* ringing */
-.ring{background:linear-gradient(140deg,var(--accent),var(--accent-hover));color:var(--on-accent);align-items:center;justify-content:center;text-align:center;padding:0 28px 40px}
+/* alarm colours match the native RingingView: deep enough that white text passes AA for large text */
+.ring{--ring-1:#E05224;--ring-2:#DB2966;background:linear-gradient(140deg,var(--ring-1),var(--ring-2));color:#fff;align-items:center;justify-content:center;text-align:center;padding:0 28px 40px}
 .pulses{position:absolute;top:220px;left:50%;width:0;height:0}
 .pulses i{position:absolute;left:-90px;top:-90px;width:180px;height:180px;border-radius:50%;border:2px solid color-mix(in srgb, var(--on-accent) 40%, transparent);animation:pulse 2.4s ease-out infinite}
 .pulses i:nth-child(2){animation-delay:.8s}.pulses i:nth-child(3){animation-delay:1.6s}
@@ -185,7 +201,7 @@ input[type=range]{width:100%;accent-color:var(--primary)}
 .ring h2{font:900 46px/1 var(--font-display);margin:0 0 14px}
 .ring p{margin:0;font-size:19px}
 .ring .away{font-weight:700;opacity:.9;margin-top:8px;font-size:16px}
-.awake{width:100%;border:0;border-radius:var(--radius-pill);background:var(--surface);color:var(--accent-text);font:700 19px/1.2 var(--font-sans);padding:20px;cursor:pointer}
+.awake{width:100%;border:0;border-radius:var(--radius-pill);background:#fff;color:var(--ring-2);font:700 19px/1.2 var(--font-sans);padding:20px;cursor:pointer}
 
 /* lock: wallpaper is fixed Kolam azure shades (device wallpaper, not themed); clock/date keep the system font */
 .lock{background:radial-gradient(120% 80% at 30% 10%,#0077B6 0%,#0B2B40 55%,#04121C 100%);color:#fff;align-items:center;cursor:pointer}
@@ -227,6 +243,92 @@ input[type=range]{width:100%;accent-color:var(--primary)}
 .steps{margin:0;padding-left:18px;color:var(--muted);font-size:13px;display:flex;flex-direction:column;gap:3px}
 .steps b{color:var(--ink);font-weight:700}
 @media (prefers-reduced-motion:reduce){.pulses i,.ring .alarm-ico,.notif{animation:none}}
+
+/* ================= Android app mode: Material Design 3 (only when <html> has k-android) =================
+   Kolam tokens already point at M3 colour roles here (kolam-m3.css); these rules swap iOS shapes for M3 ones. */
+html.k-android .screen-area{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+html.k-android .nav{padding:8px 8px 0;min-height:56px;justify-content:flex-end;gap:4px}
+html.k-android .nav .txt{background:none;border-radius:var(--md-sys-shape-corner-full);padding:10px 12px;min-height:40px;color:var(--md-sys-color-primary);font:var(--md-sys-typescale-label-large)}
+html.k-android #clearHist{margin-left:0;color:var(--md-sys-color-error)}
+/* Add is the screen's FAB */
+html.k-android .nav .plus{position:absolute;right:16px;bottom:96px;z-index:36;width:56px;height:56px;border-radius:var(--md-sys-shape-corner-large);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);box-shadow:var(--md-sys-elevation-level3);font:400 30px/1 var(--font-sans)}
+html.k-android .large-title{font:var(--md-sys-typescale-headline-medium);letter-spacing:0;padding:4px 16px 16px}
+html.k-android .scroll{padding:0 16px 170px;gap:8px}
+html.k-android .card{background:var(--md-sys-color-surface-container-low);border-radius:var(--md-sys-shape-corner-medium);box-shadow:var(--md-sys-elevation-level1)}
+html.k-android .card:has(.mini-map){box-shadow:none}
+html.k-android .sec-h{text-transform:none;letter-spacing:.006em;font:var(--md-sys-typescale-title-small);color:var(--md-sys-color-primary);padding:16px 16px 4px}
+html.k-android .sec-f,html.k-android .trips-sum{font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant)}
+html.k-android .row{min-height:72px;padding:12px 16px;gap:16px}
+html.k-android .row + .row,html.k-android .srow + .srow{border-top:0}
+html.k-android .row .ico{border-radius:var(--md-sys-shape-corner-full);width:40px;height:40px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+html.k-android .row .t b{font:var(--md-sys-typescale-body-large);font-weight:700}
+html.k-android .row .t span,html.k-android .meta2{font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant)}
+html.k-android .srow .row{background:var(--md-sys-color-surface-container-low)}
+html.k-android .pill-btn{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);min-height:40px;padding:0 16px;font:var(--md-sys-typescale-label-large)}
+/* navigation bar */
+html.k-android .tabbar{left:0;right:0;bottom:0;transform:none;border-radius:0;height:80px;padding:12px 0 16px;gap:0;background:var(--md-sys-color-surface-container);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}
+html.k-android .tabbar button{flex:1;width:auto;background:none;gap:4px;padding:0;font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant)}
+html.k-android .tabbar .m3-ind{width:64px;height:32px;border-radius:var(--md-sys-shape-corner-full);display:grid;place-items:center;position:relative;overflow:hidden}
+html.k-android .tabbar button[aria-selected="true"]{background:none;color:var(--md-sys-color-on-surface);font-weight:700}
+html.k-android .tabbar button[aria-selected="true"] .m3-ind{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+html.k-android .tabbar svg circle[fill="var(--ios-mat)"]{fill:var(--md-sys-color-secondary-container)}
+/* snackbar */
+html.k-android .toast{left:16px;right:16px;bottom:96px;border-radius:var(--md-sys-shape-corner-extra-small);background:var(--md-sys-color-inverse-surface);color:var(--md-sys-color-inverse-on-surface);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:var(--md-sys-elevation-level3);padding:6px 8px 6px 16px;min-height:48px;font:var(--md-sys-typescale-body-medium)}
+html.k-android .toast svg{display:none}
+html.k-android .toast button{color:var(--md-sys-color-inverse-primary);font:var(--md-sys-typescale-label-large);padding:10px 12px;min-height:40px}
+/* dialogs replace iOS action sheets */
+html.k-android :is(.ios-sheet,.confirm){align-items:center;justify-content:center;padding:24px;background:color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent)}
+html.k-android :is(.ios-sheet,.confirm) .box{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:312px;background:var(--md-sys-color-surface-container-high);border-radius:var(--md-sys-shape-corner-extra-large);padding:24px 24px 20px;box-shadow:var(--md-sys-elevation-level3)}
+html.k-android :is(.ios-sheet,.confirm) .grp{display:contents}
+html.k-android :is(.ios-sheet,.confirm) .grp p{width:100%;order:0;text-align:left;padding:0 0 16px;border:0;font:var(--md-sys-typescale-body-medium);color:var(--md-sys-color-on-surface-variant)}
+html.k-android :is(.ios-sheet,.confirm) .grp p b{font:var(--md-sys-typescale-headline-small);color:var(--md-sys-color-on-surface);margin-bottom:16px}
+html.k-android :is(.ios-sheet,.confirm) button{width:auto;padding:10px 12px;min-height:40px;border-radius:var(--md-sys-shape-corner-full);font:var(--md-sys-typescale-label-large);color:var(--md-sys-color-error);background:none}
+html.k-android :is(.ios-sheet,.confirm) .cancel{order:1;color:var(--md-sys-color-primary);background:none;border-radius:var(--md-sys-shape-corner-full)}
+html.k-android :is(.ios-sheet,.confirm) .grp button{order:2}
+/* add stop: full-screen dialog */
+html.k-android .sheet-nav{padding:8px 8px 8px 4px;grid-template-columns:auto 1fr auto;gap:4px;min-height:64px}
+html.k-android .sheet-nav button{font:var(--md-sys-typescale-label-large);color:var(--md-sys-color-primary);padding:10px 12px;min-height:40px;border-radius:var(--md-sys-shape-corner-full)}
+html.k-android .sheet-nav #addSave{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);padding:10px 24px}
+html.k-android .sheet-nav #addSave:disabled{background:color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);color:color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent)}
+html.k-android .sheet-nav .ttl{font:var(--md-sys-typescale-title-large);justify-self:start}
+html.k-android .search{height:56px;border-radius:var(--md-sys-shape-corner-full);background:var(--md-sys-color-surface-container-high);padding:0 16px;gap:16px;margin:0 16px 12px}
+html.k-android .add-map{border-radius:var(--md-sys-shape-corner-large)}
+html.k-android .hint{border-radius:var(--md-sys-shape-corner-small);background:var(--md-sys-color-inverse-surface);color:var(--md-sys-color-inverse-on-surface);backdrop-filter:none;-webkit-backdrop-filter:none}
+html.k-android .grp-h{font:var(--md-sys-typescale-title-small);color:var(--md-sys-color-primary);padding:16px 4px 4px}
+html.k-android .grp-f{font:var(--md-sys-typescale-body-small);color:var(--md-sys-color-on-surface-variant);padding:4px 4px 8px}
+html.k-android .grp{background:none;padding:0;border-radius:0}
+html.k-android .settings input[type=text]{height:56px;padding:0 16px;border:1px solid var(--md-sys-color-outline);border-radius:var(--md-sys-shape-corner-extra-small);font:var(--md-sys-typescale-body-large)}
+html.k-android .settings input[type=text]:focus{border:2px solid var(--md-sys-color-primary);padding:0 15px}
+html.k-android .rad-h{font:var(--md-sys-typescale-body-large);color:var(--md-sys-color-on-surface)}
+html.k-android input[type=range]{accent-color:var(--md-sys-color-primary);height:44px}
+/* quick pick: M3 segmented buttons */
+html.k-android .chips{background:none;padding:0;gap:0;border-radius:var(--md-sys-shape-corner-full);border:1px solid var(--md-sys-color-outline);overflow:hidden}
+html.k-android .chip{border-radius:0;min-height:40px;font:var(--md-sys-typescale-label-large);color:var(--md-sys-color-on-surface)}
+html.k-android .chip + .chip{border-left:1px solid var(--md-sys-color-outline)}
+html.k-android .chip.on{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);box-shadow:none}
+html.k-android .ios-btn{min-height:40px;padding:10px 24px;font:var(--md-sys-typescale-label-large);border-radius:var(--md-sys-shape-corner-full)}
+html.k-android .ios-btn:disabled{background:color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);color:color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent)}
+html.k-android .ios-btn.ghost{background:none;border:1px solid var(--md-sys-color-outline);color:var(--md-sys-color-primary)}
+html.k-android .ios-btn.ghost.red{color:var(--md-sys-color-error)}
+html.k-android .del-row{color:var(--md-sys-color-error);font:var(--md-sys-typescale-label-large);min-height:40px}
+html.k-android #delWrap{padding:8px 0}
+/* trip: standard bottom sheet over the map */
+html.k-android .panel{left:0;right:0;bottom:0;border-radius:var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;background:var(--md-sys-color-surface-container-low);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:var(--md-sys-elevation-level1);padding:22px 24px 24px}
+html.k-android .panel::before{content:"";position:absolute;top:10px;left:50%;width:32px;height:4px;margin-left:-16px;border-radius:2px;background:color-mix(in srgb, var(--md-sys-color-on-surface-variant) 40%, transparent)}
+html.k-android .eyebrow{font:var(--md-sys-typescale-label-medium);color:var(--md-sys-color-on-surface-variant)}
+html.k-android .dest-name{font:var(--md-sys-typescale-title-large)}
+html.k-android .armed{border-radius:var(--md-sys-shape-corner-small);height:32px;padding:0 12px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);font:var(--md-sys-typescale-label-large)}
+html.k-android .big{font:var(--md-sys-typescale-display-small);font-weight:900}
+html.k-android .bar{height:4px;background:var(--md-sys-color-secondary-container)}
+html.k-android .bar i{background:var(--md-sys-color-primary)}
+/* alarm keeps its own colours; buttons take M3 shapes */
+html.k-android .awake{border-radius:var(--md-sys-shape-corner-full);min-height:56px;padding:16px;font:var(--md-sys-typescale-title-medium);font-weight:700}
+html.k-android .snooze{border-radius:var(--md-sys-shape-corner-full);min-height:56px}
+html.k-android .ring h2{font:var(--md-sys-typescale-display-medium);font-weight:900}
+html.k-android .nav,html.k-android .sheet-nav{margin-top:0}
+html.k-android .md-ripple-host{position:relative;overflow:hidden}
+html.k-android .search:focus-within{outline:2px solid var(--md-sys-color-primary);outline-offset:-2px}
+html.k-android .search input:focus-visible{outline:none}
 </style>
 </head>
 <body>
@@ -299,15 +401,19 @@ input[type=range]{width:100%;accent-color:var(--primary)}
               <div class="hint" id="addHint">Search above, or tap the map to drop a pin</div>
             </div>
             <div class="settings" id="settings">
-              <input id="stopName" type="text" placeholder="Name (e.g. Home, Office)">
-              <div class="rad-h"><span>Wake me up within</span><b id="radLbl">1.0 km</b></div>
-              <input id="rad" type="range" min="200" max="10000" step="100" value="1000" aria-label="Alarm radius">
-              <div class="chips" id="chips"></div>
-              <div class="tip">Tip: on fast trains or highways, pick 2–5 km so you have time to get ready.</div>
+              <div class="grp-h" id="nameH">Name</div>
+              <div class="grp"><input id="stopName" type="text" placeholder="Home, Office, Central Station" aria-labelledby="nameH"></div>
+              <div class="grp-h">Alarm distance</div>
+              <div class="grp">
+                <div class="rad-h"><span>Wake me up within</span><b id="radLbl">1.0 km</b></div>
+                <div class="rad-row"><small aria-hidden="true">200 m</small><input id="rad" type="range" min="200" max="10000" step="100" value="1000" aria-label="Alarm distance"><small aria-hidden="true">10 km</small></div>
+                <div class="chips" id="chips" role="radiogroup" aria-label="Quick pick"></div>
+              </div>
+              <div class="grp-f">On fast trains or highways, pick 2–5 km so you have time to get ready.</div>
               <button class="ios-btn" id="saveStart" disabled>
                 <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5" fill="currentColor"/><path d="M12 9.5V13l2.2 1.6" stroke="var(--primary)" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M4 6.5 7 4M20 6.5 17 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
                 Save &amp; start trip</button>
-              <button class="del-link" id="delStop" hidden>Delete stop</button>
+              <div class="grp" id="delWrap" hidden><button class="del-row" id="delStop">Delete stop</button></div>
             </div>
           </section>
 
@@ -316,7 +422,7 @@ input[type=range]{width:100%;accent-color:var(--primary)}
             <div class="trip-map"><svg id="tripMap" preserveAspectRatio="xMidYMid slice"></svg></div>
             <div class="panel">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                <div style="min-width:0"><div class="eyebrow">HEADING TO</div><div class="dest-name" id="tDest">—</div></div>
+                <div style="min-width:0"><div class="eyebrow">Heading to</div><div class="dest-name" id="tDest">—</div></div>
                 <span class="armed" id="armedChip"><svg width="13" height="13" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7" fill="currentColor"/><path d="M4 6.5 7 4M20 6.5 17 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Armed</span>
               </div>
               <div class="big"><span id="tDist">Locating…</span><small id="tToGo">to go</small></div>
@@ -339,7 +445,7 @@ input[type=range]{width:100%;accent-color:var(--primary)}
           <!-- RINGING -->
           <section class="screen ring" id="s-ring" hidden>
             <div class="pulses"><i></i><i></i><i></i></div>
-            <svg class="alarm-ico" width="86" height="86" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.6" fill="currentColor"/><path d="M12 9v4l2.6 1.8" stroke="var(--accent)" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M3.6 6.6 7 3.8M20.4 6.6 17 3.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 20.4 6.6 22M16 20.4l1.4 1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <svg class="alarm-ico" width="86" height="86" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.6" fill="currentColor"/><path d="M12 9v4l2.6 1.8" stroke="var(--ring-2)" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M3.6 6.6 7 3.8M20.4 6.6 17 3.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 20.4 6.6 22M16 20.4l1.4 1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <h2>Wake up!</h2>
             <p>You're approaching <b id="rDest">your stop</b></p>
             <p class="away" id="rAway"></p>
@@ -632,20 +738,23 @@ input[type=range]{width:100%;accent-color:var(--primary)}
 
   // ---------- Add stop ----------
   const PRESETS = [300,500,1000,2000,5000];
-  $('chips').innerHTML = PRESETS.map(p => `<button class="chip" data-v="${p}">${fmtDist(p)}</button>`).join('');
+  $('chips').innerHTML = PRESETS.map(p => `<button class="chip" role="radio" aria-checked="false" data-v="${p}">${fmtDist(p)}</button>`).join('');
   function renderAdd() {
     const d = state.draft, r = state.draftRadius;
     $('radLbl').textContent = fmtDist(r); $('rad').value = r;
-    [...$('chips').children].forEach(c => c.classList.toggle('on', +c.dataset.v === r));
+    [...$('chips').children].forEach(c => { c.classList.toggle('on', +c.dataset.v === r); c.setAttribute('aria-checked', +c.dataset.v === r); });
+    $('rad').setAttribute('aria-valuetext', fmtDist(r));
     $('addSave').disabled = $('saveStart').disabled = !d;
     $('addTitle').textContent = state.editingId ? 'Edit stop' : 'New stop';
-    $('delStop').hidden = !state.editingId;
+    $('delWrap').hidden = !state.editingId;
     $('addHint').hidden = !!d;
     drawMap($('addMap'), {box: d ? boxAround(pointAt(d.m), Math.max(r*1.6, 1500)) : ROUTE_BOX, dest: d ? {xy: pointAt(d.m), radius: r} : null, user: null});
     const u = $('addMap-user'); if (u) { const [x,y] = pointAt(state.pos); u.setAttribute('transform', `translate(${x},${y})`); }
   }
   function boxAround([x,y], meters) {
-    const h = meters*2/MPP*1.15, w = h*0.47;
+    // Match the map's own aspect ratio so the whole alarm zone stays in view (the map is a short, wide row now).
+    const el = $('addMapWrap'), ar = el.clientWidth && el.clientHeight ? el.clientWidth / el.clientHeight : 0.47;
+    const h = meters*2/MPP*1.15 * Math.max(1, 1/ar * 0.6), w = h*ar;
     return `${x-w/2} ${y-h/2} ${w} ${h}`;
   }
   function openAdd(existing) {
@@ -904,6 +1013,28 @@ input[type=range]{width:100%;accent-color:var(--primary)}
     $('phone').style.transform = `scale(${s})`; $('fit').style.height = `${800*s}px`;
   }
   window.addEventListener('resize', fit); fit();
+
+  // ---------- Android app mode (Material Design 3, from the shared Kolam M3 kit) ----------
+  // In a browser KolamM3.init returns a stub and none of this runs.
+  if (window.KolamM3 && KolamM3.isAndroid) {
+    document.querySelectorAll('.tabbar button svg').forEach(svg => { const i = document.createElement('span'); i.className = 'm3-ind md-ripple-host'; svg.replaceWith(i); i.appendChild(svg); });
+    document.querySelectorAll('.screen-area button').forEach(b => { if (!b.closest('.tabbar')) b.classList.add('md-ripple-host'); });
+    $('addBtn').setAttribute('aria-label', 'Add stop');
+    KolamM3.init({
+      primary: '#0077b6', appBar: false, navBar: false, edgeToEdge: false,
+      // Hardware Back: close a dialog, leave the stop screen, return to Stops, then exit.
+      back: () => {
+        if (!$('sheet').hidden) { $('sheet').hidden = true; return; }
+        if (!$('confirm').hidden) { $('confirm').hidden = true; return; }
+        if (state.locked) { setLocked(false); return; }
+        if (state.screen === 'ring') return; // an alarm is dismissed with I'm awake or Snooze
+        if (state.screen === 'add') { go('home'); return; }
+        if (state.screen === 'trip') { $('endTrip').click(); return; }
+        if (state.tab === 'trips') { document.querySelector('.tabbar [data-tab="stops"]').click(); return; }
+        window.Capacitor?.Plugins?.App?.exitApp?.();
+      },
+    });
+  }
 
   render();
 })();
