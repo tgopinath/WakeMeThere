@@ -4,16 +4,26 @@ import SwiftUI
 struct RingingView: View {
     @EnvironmentObject private var trip: TripManager
     @State private var pulse = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    /// Warm alarm gradient, deep enough that white text passes WCAG AA (darker still with Increase Contrast).
+    private var colors: [Color] {
+        contrast == .increased
+            ? [Color(red: 0.72, green: 0.22, blue: 0.08), Color(red: 0.66, green: 0.08, blue: 0.30)]
+            : [Color(red: 0.88, green: 0.32, blue: 0.14), Color(red: 0.86, green: 0.16, blue: 0.40)]
+    }
 
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(red: 1.0, green: 0.45, blue: 0.25), Color(red: 0.93, green: 0.22, blue: 0.47)],
+                colors: colors,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
 
+            if !reduceMotion {
             ForEach(0..<3) { ring in
                 Circle()
                     .stroke(.white.opacity(0.35), lineWidth: 2)
@@ -26,17 +36,21 @@ struct RingingView: View {
                     )
             }
             .offset(y: -80)
+            .accessibilityHidden(true)
+            }
 
             VStack(spacing: 16) {
                 Spacer()
 
                 Image(systemName: "alarm.waves.left.and.right.fill")
                     .font(.system(size: 72, weight: .semibold))
-                    .symbolEffect(.variableColor.iterative.reversing)
+                    .symbolEffect(.variableColor.iterative.reversing, isActive: !reduceMotion)
                     .padding(.bottom, 24)
+                    .accessibilityHidden(true)
 
                 Text("Wake up!")
-                    .font(.system(size: 48, weight: .heavy, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .heavy))
+                    .accessibilityAddTraits(.isHeader)
 
                 if let destination = trip.activeTrip {
                     Text("You're approaching **\(destination.name)**")
@@ -58,7 +72,7 @@ struct RingingView: View {
                     } label: {
                         Text("I'm awake")
                             .font(.title3.weight(.bold))
-                            .foregroundStyle(Color(red: 0.93, green: 0.22, blue: 0.47))
+                            .foregroundStyle(colors[1])
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 20)
                             .background(.white, in: Capsule())
@@ -81,6 +95,9 @@ struct RingingView: View {
             .foregroundStyle(.white)
             .padding()
         }
-        .onAppear { pulse = true }
+        .onAppear {
+            pulse = true
+            AccessibilityNotification.Announcement("Wake up! You're approaching your stop.").post()
+        }
     }
 }

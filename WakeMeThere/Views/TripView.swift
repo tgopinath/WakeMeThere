@@ -6,6 +6,9 @@ struct TripView: View {
     @EnvironmentObject private var trip: TripManager
     @State private var camera: MapCameraPosition = .automatic
     @State private var confirmEnd = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         if let destination = trip.activeTrip {
@@ -26,9 +29,15 @@ struct TripView: View {
                 .onAppear { fitCamera(animated: false) }
                 .onChange(of: trip.location == nil) { fitCamera(animated: true) }
 
-                panel(for: destination)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
+                // The panel scrolls only when it's taller than the screen (large text sizes).
+                ViewThatFits(in: .vertical) {
+                    panel(for: destination)
+                    ScrollView { panel(for: destination) }
+                        .scrollBounceBehavior(.basedOnSize)
+                        .frame(maxHeight: 560)
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
             }
             .confirmationDialog("End this trip?", isPresented: $confirmEnd, titleVisibility: .visible) {
                 Button("End trip", role: .destructive) { trip.endTrip() }
@@ -55,7 +64,7 @@ struct TripView: View {
             longitude: (lons.max()! + lons.min()!) / 2
         )
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: latSpan, longitudeDelta: lonSpan))
-        if animated {
+        if animated && !reduceMotion {
             withAnimation(.easeInOut(duration: 0.8)) { camera = .region(region) }
         } else {
             camera = .region(region)
@@ -64,17 +73,21 @@ struct TripView: View {
 
     private func panel(for destination: Destination) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
+            let header = typeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+                : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+            header {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("HEADING TO")
-                        .font(.caption2.weight(.bold))
-                        .tracking(1)
+                    Text("Heading to")
+                        .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text(destination.name)
                         .font(.title3.weight(.semibold))
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .accessibilityAddTraits(.isHeader)
                 }
-                Spacer()
+                .accessibilityElement(children: .combine)
+                if !typeSize.isAccessibilitySize { Spacer() }
                 Label(trip.isSnoozed ? "Snoozed" : "Armed",
                       systemImage: trip.isSnoozed ? "zzz" : "alarm.waves.left.and.right.fill")
                     .font(.caption.weight(.semibold))
@@ -82,28 +95,30 @@ struct TripView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(Color.accentColor.opacity(0.14), in: Capsule())
+                    .accessibilityLabel(trip.isSnoozed ? "Alarm snoozed" : "Alarm armed")
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .lastTextBaseline, spacing: 6) {
                     Text(trip.distance.map(Format.distance) ?? "Locating…")
-                        .font(.system(size: 44, weight: .bold, design: .rounded).monospacedDigit())
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold).monospacedDigit())
                         .contentTransition(.numericText())
-                        .animation(.snappy, value: trip.distance)
+                        .animation(reduceMotion ? nil : .snappy, value: trip.distance)
                     if trip.distance != nil {
                         Text("to go")
                             .font(.headline)
                             .foregroundStyle(.secondary)
                     }
                 }
-                ProgressView(value: trip.progress)
-                    .tint(Color.accentColor)
-                HStack {
-                    Label("Rings within \(Format.distance(destination.radius))", systemImage: "bell.fill")
-                    Spacer()
-                    if let eta = trip.eta {
-                        Label("Alarm in ~\(Format.duration(eta))", systemImage: "clock.fill")
-                    }
+                .accessibilityElement(children: .combine)
+                ProgressView(value: trip.progress) {
+                    Text("Trip progress")
+                }
+                .labelsHidden()
+                .tint(Color.accentColor)
+                ViewThatFits(in: .horizontal) {
+                    HStack { meta(destination); Spacer(minLength: 8) }
+                    VStack(alignment: .leading, spacing: 4) { meta(destination) }
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -135,7 +150,20 @@ struct TripView: View {
             .controlSize(.large)
         }
         .padding(20)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(contrast == .increased ? AnyShapeStyle(Color(.systemBackground)) : AnyShapeStyle(.regularMaterial),
+                    in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay {
+            if contrast == .increased {
+                RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(Color.primary.opacity(0.5), lineWidth: 1)
+            }
+        }
         .shadow(color: .black.opacity(0.12), radius: 20, y: 6)
+    }
+
+    @ViewBuilder private func meta(_ destination: Destination) -> some View {
+        Label("Rings within \(Format.distance(destination.radius))", systemImage: "bell.fill")
+        if let eta = trip.eta {
+            Label("Alarm in about \(Format.duration(eta))", systemImage: "clock.fill")
+        }
     }
 }

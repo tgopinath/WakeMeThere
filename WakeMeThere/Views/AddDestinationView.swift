@@ -17,6 +17,10 @@ struct AddDestinationView: View {
     @State private var camera: MapCameraPosition
     @State private var isSearching = false
     @State private var confirmDelete = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var mapHeight: CGFloat { typeSize.isAccessibilitySize ? 200 : 280 }
 
     init(
         existing: Destination? = nil,
@@ -102,102 +106,105 @@ struct AddDestinationView: View {
     // MARK: - Map + settings
 
     private var editor: some View {
-        VStack(spacing: 0) {
-            MapReader { proxy in
-                Map(position: $camera) {
-                    UserAnnotation()
-                    if let coordinate {
-                        MapCircle(center: coordinate, radius: radius)
-                            .foregroundStyle(Color.accentColor.opacity(0.18))
-                            .stroke(Color.accentColor, lineWidth: 2)
-                        Marker(name.isEmpty ? "Stop" : name, systemImage: "alarm.fill", coordinate: coordinate)
-                            .tint(Color.accentColor)
-                    }
-                }
-                .onTapGesture { point in
-                    if let tapped = proxy.convert(point, from: .local) {
-                        dropPin(at: tapped)
-                    }
-                }
-            }
-            .overlay(alignment: .top) {
+        Form {
+            Section {
+                map
+                    .frame(height: mapHeight)
+                    .listRowInsets(EdgeInsets())
+            } footer: {
                 if coordinate == nil {
-                    Label("Search above, or tap the map to drop a pin", systemImage: "hand.tap.fill")
-                        .font(.footnote.weight(.medium))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(.regularMaterial, in: Capsule())
-                        .padding(.top, 12)
+                    Label("Search above, or tap the map to drop a pin.", systemImage: "hand.tap")
                 }
             }
 
-            settingsPanel
+            Section("Name") {
+                TextField("Name", text: $name, prompt: Text("Home, Office, Central Station"))
+                    .textInputAutocapitalization(.words)
+                    .submitLabel(.done)
+            }
+
+            Section {
+                LabeledContent("Wake me up within") {
+                    Text(Format.distance(radius))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                        .fontWeight(.semibold)
+                }
+                Slider(value: $radius, in: 200...10_000, step: 100) {
+                    Text("Alarm distance")
+                } minimumValueLabel: {
+                    Text("200 m").font(.caption).foregroundStyle(.secondary)
+                } maximumValueLabel: {
+                    Text("10 km").font(.caption).foregroundStyle(.secondary)
+                }
+                .accessibilityValue(Format.distance(radius))
+                Picker("Quick pick", selection: presetBinding) {
+                    ForEach(presets, id: \.self) { preset in
+                        Text(Format.distance(preset)).tag(Optional(preset))
+                    }
+                }
+                .pickerStyle(.segmented)
+            } header: {
+                Text("Alarm distance")
+            } footer: {
+                Text("On fast trains or highways, pick 2–5 km so you have time to get ready.")
+            }
+
+            Section {
+                Button {
+                    save(startNow: true)
+                } label: {
+                    Label("Save & start trip", systemImage: "alarm.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
+                .controlSize(.large)
+                .disabled(!canSave)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+            }
+
+            if existing != nil, onDelete != nil {
+                Section {
+                    Button("Delete stop", role: .destructive) {
+                        confirmDelete = true
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .scrollDismissesKeyboard(.interactively)
+    }
+
+    private var map: some View {
+        MapReader { proxy in
+            Map(position: $camera) {
+                UserAnnotation()
+                if let coordinate {
+                    MapCircle(center: coordinate, radius: radius)
+                        .foregroundStyle(Color.accentColor.opacity(0.18))
+                        .stroke(Color.accentColor, lineWidth: 2)
+                    Marker(name.isEmpty ? "Stop" : name, systemImage: "alarm.fill", coordinate: coordinate)
+                        .tint(Color.accentColor)
+                }
+            }
+            .onTapGesture { point in
+                if let tapped = proxy.convert(point, from: .local) {
+                    dropPin(at: tapped)
+                }
+            }
+            .accessibilityLabel(coordinate == nil ? "Map. Search for a place to set your stop." : "Map showing your stop and alarm zone")
         }
     }
 
-    private var settingsPanel: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            TextField("Name (e.g. Home, Office, Central Station)", text: $name)
-                .font(.headline)
-                .padding(12)
-                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
-
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("Wake me up within")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(Format.distance(radius))
-                        .font(.subheadline.weight(.semibold).monospacedDigit())
-                }
-                Slider(value: $radius, in: 200...10_000, step: 100)
-                HStack(spacing: 8) {
-                    ForEach(presets, id: \.self) { preset in
-                        Button(Format.distance(preset)) {
-                            withAnimation(.snappy) { radius = preset }
-                        }
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            radius == preset ? Color.accentColor : Color(.tertiarySystemFill),
-                            in: Capsule()
-                        )
-                        .foregroundStyle(radius == preset ? Color.white : Color.primary)
-                    }
-                }
-                Text("Tip: on fast trains or highways, pick 2–5 km so you have time to get ready.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Button {
-                save(startNow: true)
-            } label: {
-                Label("Save & start trip", systemImage: "alarm.fill")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-            }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
-            .controlSize(.large)
-            .disabled(!canSave)
-
-            if existing != nil, onDelete != nil {
-                Button(role: .destructive) {
-                    confirmDelete = true
-                } label: {
-                    Label("Delete stop", systemImage: "trash")
-                        .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderless)
-            }
-        }
-        .padding(20)
-        .background(Color(.systemBackground))
+    /// The segmented quick-pick shows a selection only when the slider sits on a preset.
+    private var presetBinding: Binding<Double?> {
+        Binding(
+            get: { presets.contains(radius) ? radius : nil },
+            set: { if let value = $0 { withAnimation(reduceMotion ? nil : .snappy) { radius = value } } }
+        )
     }
 
     // MARK: - Actions
@@ -230,7 +237,7 @@ struct AddDestinationView: View {
 
     private func setCoordinate(_ new: CLLocationCoordinate2D) {
         coordinate = new
-        withAnimation(.snappy) {
+        withAnimation(reduceMotion ? nil : .snappy) {
             camera = .region(MKCoordinateRegion(
                 center: new,
                 latitudinalMeters: max(radius * 3, 2000),

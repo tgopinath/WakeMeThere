@@ -30,9 +30,10 @@ struct HomeView: View {
 // MARK: - Stops tab
 
 private struct StopsTab: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EnvironmentObject private var trip: TripManager
     @EnvironmentObject private var store: DestinationStore
-    @State private var showingAdd = false
+    @State private var showingAdd = StopsTab.demoScene == "add"
     @State private var editing: Destination?
     @State private var pendingDelete: Destination?
     @State private var camera: MapCameraPosition = .automatic
@@ -52,6 +53,7 @@ private struct StopsTab: View {
                     }
                     .frame(height: 200)
                     .listRowInsets(EdgeInsets())
+                    .accessibilityLabel("Map of your stops")
                 }
 
                 if !trip.isAuthorized {
@@ -81,14 +83,23 @@ private struct StopsTab: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 8)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
                     .task(id: deleted.destination.id) {
-                        try? await Task.sleep(nanoseconds: 4_000_000_000)
+                        AccessibilityNotification.Announcement("Deleted \(deleted.destination.name). Undo available.").post()
+                        // VoiceOver users get longer to reach the Undo button.
+                        let seconds: UInt64 = UIAccessibility.isVoiceOverRunning ? 10 : 5
+                        try? await Task.sleep(nanoseconds: seconds * 1_000_000_000)
                         withAnimation(.snappy) { store.clearUndo() }
                     }
                 }
             }
-            .animation(.snappy, value: store.lastDeleted)
+            .animation(reduceMotion ? nil : .snappy, value: store.lastDeleted)
+            .task {
+                if StopsTab.demoScene == "edit" {
+                    try? await Task.sleep(nanoseconds: 800_000_000)
+                    editing = store.destinations.first
+                }
+            }
             .sheet(isPresented: $showingAdd) {
                 AddDestinationView { destination, startNow in
                     store.add(destination)
@@ -115,6 +126,14 @@ private struct StopsTab: View {
                 Text("You can undo this for a few seconds.")
             }
         }
+    }
+
+    private static var demoScene: String? {
+        #if DEBUG
+        return DemoMode.scene
+        #else
+        return nil
+        #endif
     }
 
     // MARK: Sections
@@ -238,45 +257,68 @@ private struct TripsTab: View {
 private struct DestinationRow: View {
     @EnvironmentObject private var trip: TripManager
     @Environment(\.editMode) private var editMode
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .title3) private var iconSize: CGFloat = 40
     let destination: Destination
     let onStart: () -> Void
 
+    private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
+
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "mappin.and.ellipse")
-                .font(.title3)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 40, height: 40)
-                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(destination.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                HStack(spacing: 10) {
-                    Label(Format.distance(destination.radius), systemImage: "bell.fill")
-                    if let here = trip.location {
-                        Label("\(Format.distance(here.distance(from: destination.location))) away", systemImage: "location.fill")
-                    }
+        // At accessibility sizes the Start button moves under the text so names aren't cut off.
+        let layout = typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10))
+            : AnyLayout(HStackLayout(spacing: 14))
+        layout {
+            HStack(spacing: 14) {
+                if !typeSize.isAccessibilitySize {
+                Image(systemName: "mappin.and.ellipse")
+                    .font(.title3)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: iconSize, height: iconSize)
+                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityHidden(true)
                 }
-                .font(.subheadline)
-                .labelStyle(CompactLabelStyle())
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(destination.name)
+                        .font(.headline)
+                        .lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
+                    Group {
+                        if typeSize.isAccessibilitySize {
+                            VStack(alignment: .leading, spacing: 2) { metadata }
+                        } else {
+                            ViewThatFits(in: .horizontal) {
+                                HStack(spacing: 10) { metadata }
+                                VStack(alignment: .leading, spacing: 2) { metadata }
+                            }
+                        }
+                    }
+                    .font(.subheadline)
+                    .labelStyle(CompactLabelStyle())
+                    .foregroundStyle(.secondary)
+                }
             }
+            .accessibilityElement(children: .combine)
 
-            Spacer(minLength: 8)
+            if !typeSize.isAccessibilitySize { Spacer(minLength: 8) }
 
-            if editMode?.wrappedValue.isEditing != true {
+            if !isEditing {
                 Button("Start", action: onStart)
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
-                    .controlSize(.small)
+                    .accessibilityLabel("Start trip to \(destination.name)")
             }
         }
         .padding(.vertical, 4)
     }
 
+    @ViewBuilder private var metadata: some View {
+        Label("Rings within \(Format.distance(destination.radius))", systemImage: "bell.fill")
+        if let here = trip.location {
+            Label("\(Format.distance(here.distance(from: destination.location))) away", systemImage: "location.fill")
+        }
+    }
 }
 
 /// Icon + text with a tight gap, for dense metadata rows.
@@ -297,6 +339,7 @@ private struct HistoryRow: View {
             Image(systemName: record.outcome == .arrived ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .font(.title3)
                 .foregroundStyle(record.outcome == .arrived ? Color.green : Color.secondary)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(record.destinationName)
                     .font(.subheadline.weight(.semibold))
@@ -310,6 +353,7 @@ private struct HistoryRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .combine)
     }
 
     private var summary: String {
@@ -319,6 +363,7 @@ private struct HistoryRow: View {
 }
 
 private struct UndoToast: View {
+    @Environment(\.colorSchemeContrast) private var contrast
     let name: String
     let onUndo: () -> Void
 
@@ -332,10 +377,14 @@ private struct UndoToast: View {
             Spacer()
             Button("Undo", action: onUndo)
                 .font(.subheadline.weight(.bold))
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel("Undo delete")
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.leading, 16)
+        .padding(.trailing, 8)
+        .padding(.vertical, 4)
         .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(contrast == .increased ? 0.4 : 0), lineWidth: 1))
         .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
     }
 }
@@ -344,23 +393,17 @@ private struct EmptyStateRow: View {
     let onAdd: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "bed.double.fill")
-                .font(.system(size: 40))
-                .foregroundStyle(Color.accentColor)
-            Text("Nap on the way")
-                .font(.headline)
+        ContentUnavailableView {
+            Label("Nap on the way", systemImage: "bed.double.fill")
+        } description: {
             Text("Add your stop and we'll wake you up before you get there.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        } actions: {
             Button("Add a stop", systemImage: "plus", action: onAdd)
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.capsule)
-                .padding(.top, 4)
+                .controlSize(.large)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
     }
 }
 
@@ -372,6 +415,7 @@ private struct PermissionCard: View {
             Image(systemName: "location.slash.fill")
                 .foregroundStyle(.orange)
                 .font(.title3)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 6) {
                 Text("Location access needed")
                     .font(.headline)
@@ -385,7 +429,8 @@ private struct PermissionCard: View {
                         UIApplication.shared.open(url)
                     }
                 }
-                .font(.subheadline.weight(.semibold))
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
             }
         }
         .padding(.vertical, 4)

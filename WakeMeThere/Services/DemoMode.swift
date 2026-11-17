@@ -8,6 +8,8 @@ import Foundation
 ///   -demo ring     …and the alarm ringing
 ///   -demo undo     …and a stop just deleted, showing the undo toast
 ///   -demo trips    …opened on the Trips tab
+///   -demo add      …with the New stop sheet open
+///   -demo edit     …with the first stop's Edit sheet open
 enum DemoMode {
     static var isActive: Bool { ProcessInfo.processInfo.arguments.contains("-demo") }
 
